@@ -1,0 +1,24 @@
+
+<h1>Mise en place du systeme de verification Proctor Exam</h1>
+<p>
+Lorem ipsum dolor sit, amet consectetur adipisicing elit. Numquam eligendi iste consectetur atque
+soluta veniam id odit ut, architecto fugiat dicta quis quia? Laboriosam ab inventore commodi illum,
+sunt iusto.
+</p>
+    <form id="lti-{{ element_id }}"
+        action="{{ launch_url }}"
+        method="post"
+        encType="application/x-www-form-urlencoded"
+    >
+
+        {% for param_name, param_value in lti_parameters.items %}
+        <input name="{{ param_name }}" value="{{ param_value }}" type="hidden"/>
+        {% endfor %}
+
+        {% if button_text %}
+        <input type="submit" value="{{ button_text }}" />
+        {% else %}
+        <input type="submit" value="Cliquez ici pour commencer" />
+        {% endif %}
+    </form>
+

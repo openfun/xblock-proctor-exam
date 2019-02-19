@@ -1,0 +1,2 @@
+recursive-include proctor_exam/locale/*/LC_MESSAGES/* *.po
+recursive-include proctor_exam/static/* *.css *.html *.js

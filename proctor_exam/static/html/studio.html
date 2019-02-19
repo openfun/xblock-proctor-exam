@@ -1,0 +1,15 @@
+{% load i18n %}
+
+<div class="">
+    <p class="">
+        {% if child_fragments %}
+            Cet examen Proctor Exam contient {{ child_fragments|length }} élément{{ child_fragments|pluralize }}.
+            <br>
+            Cliquez sur "Voir" pour y acceder.
+        {% else %}
+            Cet examen Proctor Exam contient ne contient pas encore d'exercice.
+            <br>
+            Cliquez sur "Voir" pour en ajouter.
+        {% endif %}
+    </p>
+</div>

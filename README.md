@@ -1,2 +1,66 @@
 Proctor Exam Xblock
 =========================
+
+
+[![CircleCI](https://circleci.com/gh/openfun/xblock-proctor-exam/tree/master.svg?style=svg)](https://circleci.com/gh/openfun/xblock-proctor-exam/tree/master)
+
+## Installation
+
+Install this package with `pip` using FUN package index _via_:
+
+```bash
+$ pip install --extra-index-url https://pypi.fury.io/openfun xblock-proctor-exam
+```
+
+Alternatively, if you intend to work on this project, clone this repository
+first, and then make an editable installation _via_:
+
+```bash
+$ pip install -e ".[dev]"
+```
+
+## Configuration
+
+Proctor Exam xblock relies on [Configurable LTI Consumer](https://github.com/openfun/xblock-configurable-lti-consumer)
+which should also be installed in Python environment, therefore it also use its Django settings for configuration,
+see [Configurable LTI Consumer documentation](https://github.com/openfun/xblock-configurable-lti-consumer/blob/master/README.md#configuration-examples).
+
+A typical Proctor Exam LTI configuration should look like this:
+
+```python
+
+LTI_XBLOCK_CONFIGURATIONS = [
+    {
+        'display_name': 'Proctor Exam',
+        'shared_secret': 'InsecureOauthConsumerKey',
+        'oauth_consumer_key': 'InsecureSharedSecret',
+        'is_launch_url_regex': False,
+        'hidden_fields': [
+            'display_name',
+            'description',
+            'lti_id',
+            'launch_target',
+            'inline_height',
+            'accept_grades_past_due',
+            'ask_to_send_username',
+            'ask_to_send_email',
+            'custom_parameters',
+            'has_score',
+            'hide_launch',
+            'modal_height',
+            'modal_width',
+            'weight'],
+        'automatic_resizing': None,
+        'inline_ratio': None,
+        'ignore_configuration': True,
+        'show_button': False,
+        'defaults': {
+            'launch_target': 'new_window',
+            'lti_id': 'proctorexam',
+            'button_text': "Click here to start proctor Exam process",
+        },
+    }]
+```
+
+Add finally, `proctor_exam` to the list of advanced modules in the
+"advanced settings" of a course.
