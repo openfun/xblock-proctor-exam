@@ -1,20 +1,33 @@
 # -*- coding: utf-8 -*-
-
-import datetime
+import hashlib
+import hmac
+import json
+import re
+import requests
+import time
 import pkg_resources
 
 from django.template import Context, Template
-from django.utils.translation import ugettext_lazy, ugettext as _
+from django.utils.translation import ugettext_lazy as _
+
+try:
+    from contentstore.utils import get_lms_link_for_item
+except ImportError:
+    # we are on the LMS side, contentstore module is not in PYTHONPATH
+    get_lms_link_for_item = None
 
 from xblock.fields import String, Scope
-#from web_fragments.fragment import Fragment
 from xblock.fragment import Fragment
 from xblock.core import XBlock
 from xblockutils.resources import ResourceLoader
 from xblockutils.studio_editable import StudioContainerXBlockMixin
 
+from lti_consumer.exceptions import LtiError
 from lti_consumer.lti import LtiConsumer
 from configurable_lti_consumer import ConfigurableLtiConsumerXBlock
+
+
+API_URL = "https://fun.proctorexam.com/api/v3"
 
 
 class ProctorExamXBlock(ConfigurableLtiConsumerXBlock, StudioContainerXBlockMixin):
@@ -27,7 +40,13 @@ class ProctorExamXBlock(ConfigurableLtiConsumerXBlock, StudioContainerXBlockMixi
     display_name = String(
         display_name=_("Display Name"),
         scope=Scope.settings,
-        default=_("Proctor Exam"),
+        default="Proctor Exam",
+    )
+
+    lti_id = String(
+        display_name=_("LTI ID"),
+        scope=Scope.settings,
+        default="proctor_exam",
     )
 
     def _is_studio(self):
@@ -52,38 +71,117 @@ class ProctorExamXBlock(ConfigurableLtiConsumerXBlock, StudioContainerXBlockMixi
         template = Template(self.resource_string(ressource))
         context = dict({
                 'user_is_staff': self.user_is_staff(),
-                'user_allowed': self.is_user_allowed(),
                 },
                 **kwargs)
         html = template.render(Context(context))
         return html
 
-    def is_user_allowed(self):
+    def _get_exam_id(self):
         """
-        Is LMS user correctly indentified on Proctor Exam
+        Return ProctorExam exam ID extracted from LTI launch URL
         """
-        return False
+        pattern = self.get_configuration(self.launch_url)["pattern"]
+        match = re.match(pattern, self.launch_url)
+        if match:
+            try:
+                return match.groupdict()["exam_id"]
+            except KeyError:
+                pass
+        return None
+
+    def get_proctorexam_user_state(self, exam_id, lti_parameters):
+        """
+        Retrieve user status from Proctor Exam API
+        """
+        endpoint_url = API_URL + "/exams/%s/show_lti_student" % exam_id
+        api_token, secret_key = self.lti_provider_key_secret
+        if not api_token:
+            return {"errors": "Le passport LTI n'est pas configuré"}
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Token token=%s" % api_token,
+            "Accept": "application/vnd.procwise.v3"
+        }
+        params = {
+            "nonce": int(time.time()),
+            "timestamp": int(time.time() * 1000),
+            "id": exam_id,
+            "student_lms_id": lti_parameters["user_id"],
+            "resource_link_id": lti_parameters["resource_link_id"],
+            "context_id": lti_parameters["context_id"],
+        }
+        fields = "?".join(["%s=%s" % (key, value) for key, value in sorted(params.items())])
+        signature = hmac.new(secret_key.encode(), fields.encode(), hashlib.sha256).hexdigest()
+        params["signature"] = signature
+
+        response = requests.get(endpoint_url, headers=headers, data=json.dumps(params))
+        try:
+            json_response = json.loads(response.content)
+        # API returns an HTML page about browser compatibility if user is yet unknown,
+        # so we handle this case ourselves
+        except ValueError:
+            json_response = {"student": {"status": "not_setup"}}
+        return json_response
+
+    def author_edit_view(self, context):
+        """
+        We override this view from StudioContainerXBlockMixin to allow
+        the addition of children xblocks, by passing can_add=True to
+        render_children, Studio will add big green buttons to the page
+        """
+        fragment = Fragment()
+        self.render_children(context, fragment, can_reorder=True, can_add=True)
+        return fragment
+
+    def _get_context_for_template(self):
+        context = super(ProctorExamXBlock, self)._get_context_for_template()
+        context.update({
+            "banner": self.runtime.local_resource_url(self, 'public/images/banner.png'),
+            "chrome_logo": self.runtime.local_resource_url(self, 'public/images/chrome-logo.png'),
+            "warning_icon": self.runtime.local_resource_url(self, 'public/images/warning-icon.png'),
+        })
+        return context
 
     def student_view(self, context=None):
+        user_allowed = False
+        user_state = {}
+        message = ""
+        lti_parameters = {}
         fragment = Fragment()
-        child_fragments = self.runtime.render_children(block=self, view_name='student_view')
         context = self._get_context_for_template()
+        child_fragments = self.runtime.render_children(block=self, view_name='student_view')
         context.update({"child_fragments": child_fragments})
 
         if self._is_studio():  # studio view
-            fragment.add_content(ragment(self._render_template('static/html/studio.html', **context)))
-            return fragment
-        else:  # student view
-            if self.is_user_allowed():
+            context["lms_link"] = get_lms_link_for_item(self.location) if get_lms_link_for_item else ""
+            fragment.add_content(self._render_template('static/html/studio.html', **context))
+        else:  # Student view
+            if self.launch_url and self._get_exam_id():
+                try:
+                    lti_consumer = LtiConsumer(self)
+                    lti_parameters = lti_consumer.get_signed_lti_parameters()
+                    exam_id = self._get_exam_id()
+                    user_state = self.get_proctorexam_user_state(
+                        self._get_exam_id(),
+                        lti_parameters
+                    )
+                    context["user_state"] = user_state
+                except LtiError:
+                    message = u"La configuration de ce xblock est incomplète, le passport LTI est invalide."
+            else:
+                message = u"La configuration de ce xblock est incorrect, il manque l'url de l'examen."
+
+            if user_state and "student" in user_state and (user_state["student"].get("status") == "exam_started"):
+                # User have completed Proctor Exam indentification process,
+                # we show him exam content
                 html = self._render_template('static/html/sequence.html', **context)
                 fragment.add_content(html)
                 fragment.add_frags_resources(child_fragments)
-                return fragment
             else:
-                lti_consumer = LtiConsumer(self)
-                lti_parameters = lti_consumer.get_signed_lti_parameters()
-                context.update({'lti_parameters': lti_parameters})
+                # User have to complete Proctor Exam indentification process
+                context.update({'lti_parameters': lti_parameters, "message": message})
                 html = self._render_template("static/html/student.html", **context)
                 fragment.add_content(html)
+                fragment.add_css(self.resource_string('static/css/student.css'))
 
-                return fragment
+        return fragment

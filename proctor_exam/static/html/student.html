@@ -1,24 +1,130 @@
+<div class="proctor-exam">
 
-<h1>Mise en place du systeme de verification Proctor Exam</h1>
-<p>
-Lorem ipsum dolor sit, amet consectetur adipisicing elit. Numquam eligendi iste consectetur atque
-soluta veniam id odit ut, architecto fugiat dicta quis quia? Laboriosam ab inventore commodi illum,
-sunt iusto.
-</p>
+    <img src="{{ banner }}" alt="Bienvenu sur la page d'examen certifiant de votre cours" />
+    <br />
+    <br />
+    <p>
+        Cher apprenant(e), le certificat émis par l'établissement créateur du MOOC est un document qui vous permettra de
+        valoriser vos nouvelles connaissances et compétences et de leur donner de la valeur.
+    </p>
+    <p>
+        Vous trouverez ci-dessous, les renseignements indispensables à connaître avant de passer l'examen certifiant.
+    </p>
+    <ul>
+        <li>
+            Le règlement d'examen en <strong>version française</strong>&nbsp;:
+            <a href="https://www.fun-mooc.help/hc/fr/articles/360001099297" target="_blank">
+                Règlement de l'examen surveillé pour le certificat FUN (VF)
+            </a>
+        </li>
+        <br />
+
+        <li>
+            Le règlement d'examen en <strong>version anglaise</strong>&nbsp;:
+            <a href="https://www.fun-mooc.help/hc/fr/articles/360001132358" target="_blank">
+                Rules and regulations for a proctored exam (VA).
+            </a>
+        </li>
+        <br />
+
+        <li>
+            Le guide utilisateur sur le déroulement d'un examen certifiant&nbsp;:
+            <a href="https://www.fun-mooc.help/hc/fr/articles/360001121537" target="_blank">
+                Guide utilisateur sur le déroulement d'un examen certifiant avec le système ProctorExam.</a>
+        </li>
+    </ul>
+
+    <h1>Configuration de votre ordinateur</h1>
+
+    <div class="frame">
+        <p>
+            Vérifier la conformité technique de votre matériel et de votre environnement est une étape préalable avant de
+            passer de votre examen.
+        </p>
+
+        <p>
+            Le détail se trouve ci-dessous&nbsp;:
+        </p>
+        <ul>
+            <li>
+                Système d'exploitation supporté : Windows 7 et supérieur, Mac OS 9 et supérieur et la plupart des distributions Linux
+            </li>
+            <li>
+                Navigateur internet supporté&nbsp;: <strong>la plate-forme ProctorExam nécessite l'utilisation d'une version récente du navigateur Google Chrome</strong>
+            </li>
+            <li>
+                Assurez-vous que ce navigateur est déjà installé sur votre ordinateur. <br />
+                <p>
+                    Si ce c’est pas le cas, installez-le en cliquant sur le logo suivant :
+                    <a href="https://www.google.com/intl/fr_ALL/chrome/" target="_blank">
+                        <img src="{{ chrome_logo }}" alt="Navigateur Chrome" width="30" height="30">
+                    </a>
+                </p>
+            </li>
+            <li>
+                L’examen s'exécute entièrement via votre navigateur Web, vous n’avez pas d’application spécifique à
+                installer sur votre ordinateur</li>
+            <li>
+                Seule l’installation obligatoire d'une extension Chrome est nécessaire pour passer l’examen en activant
+                le partage de votre d'écran.
+                <p>Pour l’installer cliquez sur le lien suivant&nbsp;:
+                    <a href="https://chrome.google.com/webstore/detail/proctorexam-screen-sharin/digojkgonhgmnohbapdfjllpnmjmdhpg/related" target="_blank">
+                        ProctorExam Screen Sharing
+                    </a>
+                </p>
+            </li>
+            <li>
+                Débit internet : Une bonne connexion Internet est requise. Veuillez <a href="http://www.zoneadsl.com/test-debit-internet.html" target="_blank">tester votre connexion</a>
+                <ol>
+                    <li>
+                        Vitesse minimale : 1 Mbit/s en téléversement, 0,5 Mbit/s en téléchargement
+                    </li>
+                    <li>
+                        Recommandé : 1,5 Mbit/s en téléversement, 1,5 Mbit/s en téléchargement
+                    </li>
+                    <li>
+                        Le partage de connexion internet en utilisant un téléphone portable (smartphone) n'est pas pris en charge.
+                    </li>
+                </ol>
+            </li>
+        </ul>
+    </div>
+
+    <p>
+        <img src="{{ warning_icon }}" alt="attention" width="50" height="50" />
+        <strong>Information importante</strong>&nbsp;: En accédant au service, vous confirmez avoir pris connaissance et accepter l'ensemble des conditions d'utilisation de ce service (règle d'examen, guide, etc.) rappelées ci-dessus.
+    </p>
+
+    <p class="message">
+        {{ message }}
+        <br>
+        {{ user_state.errors }}
+    </p>
+
+    {% if user_state.student %}
+
     <form id="lti-{{ element_id }}"
         action="{{ launch_url }}"
         method="post"
         encType="application/x-www-form-urlencoded"
     >
-
         {% for param_name, param_value in lti_parameters.items %}
-        <input name="{{ param_name }}" value="{{ param_value }}" type="hidden"/>
+            <input name="{{ param_name }}" value="{{ param_value }}" type="hidden"/>
         {% endfor %}
 
-        {% if button_text %}
-        <input type="submit" value="{{ button_text }}" />
-        {% else %}
-        <input type="submit" value="Cliquez ici pour commencer" />
-        {% endif %}
-    </form>
+        <input type="submit" value="
+    {% if user_state.student.status == "not_setup" %}
+        Cliquez pour demarrer le processus d'identification sur le site Proctor Exam
+    {% elif user_state.student.status == "in_setup" %}
+        Cliquez pour reprendre la procédure d'identification sur le site Proctor Exam
+    {% elif user_state.student.status == "exam_started" %}
+        L'examen est en cours
+    {% elif user_state.student.status == "exam_finished" %}
+        L'examen est maintenant terminé
+    {% endif %}
+        " {% if message %}disabled{% endif %}/>
 
+    </form>
+    {% endif %}
+
+</div>

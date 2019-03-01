@@ -1,15 +1,21 @@
 {% load i18n %}
 
-<div class="">
+<article class="xblock-render" lang="fr">
+
     <p class="">
         {% if child_fragments %}
             Cet examen Proctor Exam contient {{ child_fragments|length }} élément{{ child_fragments|pluralize }}.
             <br>
             Cliquez sur "Voir" pour y acceder.
         {% else %}
-            Cet examen Proctor Exam contient ne contient pas encore d'exercice.
+            Cet examen Proctor Exam ne contient pas encore d'exercice.
             <br>
             Cliquez sur "Voir" pour en ajouter.
         {% endif %}
     </p>
-</div>
+
+<p>
+    L'adresse de l'examen est <a href="{{ lms_link }}" target="_blank">https:{{ lms_link }}</a>
+</p>
+
+</article>

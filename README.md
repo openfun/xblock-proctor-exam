@@ -28,39 +28,57 @@ see [Configurable LTI Consumer documentation](https://github.com/openfun/xblock-
 A typical Proctor Exam LTI configuration should look like this:
 
 ```python
-
 LTI_XBLOCK_CONFIGURATIONS = [
     {
-        'display_name': 'Proctor Exam',
-        'shared_secret': 'InsecureOauthConsumerKey',
-        'oauth_consumer_key': 'InsecureSharedSecret',
-        'is_launch_url_regex': False,
-        'hidden_fields': [
-            'display_name',
-            'description',
-            'lti_id',
-            'launch_target',
-            'inline_height',
-            'accept_grades_past_due',
-            'ask_to_send_username',
-            'ask_to_send_email',
-            'custom_parameters',
-            'has_score',
-            'hide_launch',
-            'modal_height',
-            'modal_width',
-            'weight'],
-        'automatic_resizing': None,
-        'inline_ratio': None,
-        'ignore_configuration': True,
-        'show_button': False,
-        'defaults': {
-            'launch_target': 'new_window',
-            'lti_id': 'proctorexam',
-            'button_text': "Click here to start proctor Exam process",
+        "shared_secret": "TestSharedSecret",
+        "oauth_consumer_key": "TestOauthConsumerKey",
+        "display_name": "",  # this is required to let xblock register itself in studio
+        "is_launch_url_regex": False,
+        "automatic_resizing": None,
+        "inline_ratio": None,
+        "ignore_configuration": True,
+        "show_button": False,
+        "pattern": ".*fun\.proctorexam\.com/lti\?id=(?P<exam_id>[0-9]+)",
+        "hidden_fields": [
+            "display_name",
+            "description",
+            "lti_id",
+            "launch_target",
+            "inline_height",
+            "accept_grades_past_due",
+            "ask_to_send_username",
+            "ask_to_send_email",
+            "custom_parameters",
+            "has_score",
+            "hide_launch",
+            "modal_height",
+            "modal_width",
+            "weight",
+            "button_text"
+        ],
+        "defaults": {
+            "launch_target": "new_window",
+            "lti_id": "proctor_exam",
         },
     }]
 ```
 
+`configurable-lti-provide` also allows to set LTI OAuth credentials in LTI_XBLOCK_CONFIGURATION,
+or in an other constant LTI_XBLOCK_SECRETS which then can be stored in encrypted vault.
+
+```python
+LTI_XBLOCK_SECRETS = {
+    "proctor_exam": {
+        "shared_secret": "TestSharedSecret",
+        "oauth_consumer_key": "TestOauthConsumerKey",
+    }
+}
+```
+
+Or they can be set at course level in advanced settings
+
 Add finally, `proctor_exam` to the list of advanced modules in the
 "advanced settings" of a course.
+
+
+Please note that the workbench included in the present repository is running a standard configuration with fake credentials. (see [config/settings.yml.dist](./config/settings.yml.dist))
