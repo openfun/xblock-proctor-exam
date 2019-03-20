@@ -1,5 +1,29 @@
-*.egg-info
+### Python artifacts
 *.pyc
+*.egg-info
+
+### Editor and IDE artifacts
+*~
+*.swp
+*.orig
+/nbproject
+.idea/
+.redcar/
+codekit-config.json
+.pycharm_helpers/
+.vscode/
+
+# macosx
 .DS_Store
 
-build
+### Testing artifacts
+.coverage
+var/
+
+### Development data & tools
+venv/
+data/
+
+### Secrets
+settings.yml
+

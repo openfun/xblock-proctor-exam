@@ -1,0 +1,33 @@
+LTI_XBLOCK_CONFIGURATIONS:
+    # A configuration that adds a Proctor Exam XBlock
+  - display_name: ""
+    is_launch_url_regex: false
+    automatic_resizing: null
+    inline_ratio: null
+    ignore_configuration: true
+    show_button: false
+    pattern: .*fun\.proctorexam\.com/lti\?id=(?P<exam_id>[0-9]+)
+    defaults:
+      launch_target: new_window
+      lti_id: proctor_exam
+    hidden_fields:
+      - display_name
+      - description
+      - lti_id
+      - launch_target
+      - inline_height
+      - accept_grades_past_due
+      - ask_to_send_username
+      - ask_to_send_email
+      - custom_parameters
+      - has_score
+      - hide_launch
+      - modal_height
+      - modal_width
+      - weight
+      - button_text
+
+LTI_XBLOCK_SECRETS:
+  proctor_exam:
+    oauth_consumer_key: InsecureOauthConsumerKey
+    shared_secret: InsecureSharedSecret
