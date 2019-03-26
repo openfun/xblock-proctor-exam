@@ -1,3 +1,4 @@
+{% load i18n %}
 <div class="proctor-exam">
 
     <img src="{{ banner }}" alt="Bienvenu sur la page d'examen certifiant de votre cours" />
@@ -113,18 +114,18 @@
         {% endfor %}
 
         <input type="submit" value="
-    {% if user_state.student.status == "not_setup" %}
-        Cliquez pour demarrer le processus d'identification sur le site Proctor Exam
-    {% elif user_state.student.status == "in_setup" %}
-        Cliquez pour reprendre la procédure d'identification sur le site Proctor Exam
-    {% elif user_state.student.status == "exam_started" %}
-        L'examen est en cours
-    {% elif user_state.student.status == "exam_finished" %}
-        L'examen est maintenant terminé
+    {% if user_state.student.status == 'not_setup' %}
+        {% trans 'Click here to start identification process on Proctor Exam website' %}
+    {% elif user_state.student.status == 'in_setup' or user_state.student.status == 'exam_not_started' %}
+        {% trans 'Click here to continue identification process on Proctor Exam website' %}
+    {% elif user_state.student.status == 'exam_started' %}
+        {% trans 'Exam is running' %}
+    {% elif user_state.student.status == 'exam_finished' %}
+        {% trans 'Exam is finished' %}
     {% endif %}
         " {% if message %}disabled{% endif %}/>
 
     </form>
     {% endif %}
-
+    <!-- {{ user_state.student.status }} -->
 </div>

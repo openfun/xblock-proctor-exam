@@ -59,20 +59,23 @@ class ProctorExamXBlock(ConfigurableLtiConsumerXBlock, StudioContainerXBlockMixi
         return getattr(self.runtime, 'user_is_staff', False)
 
     def get_icon_class(self):
-        """Return the CSS class to be used in courseware sequence list."""
+        """
+        Return the CSS class to be used in courseware sequence list.
+        """
         return 'seq_problem'
 
     def resource_string(self, path):
-        """Handy helper for getting resources from our kit."""
+        """
+        Handy helper for getting resources from our package.
+        """
         data = pkg_resources.resource_string(__name__, path)
         return data.decode("utf8")
 
-    def _render_template(self, ressource, **kwargs):
+    def _render_template(self, ressource, context):
+        """
+        Render template with given context
+        """
         template = Template(self.resource_string(ressource))
-        context = dict({
-                'user_is_staff': self.user_is_staff(),
-                },
-                **kwargs)
         html = template.render(Context(context))
         return html
 
@@ -96,7 +99,7 @@ class ProctorExamXBlock(ConfigurableLtiConsumerXBlock, StudioContainerXBlockMixi
         endpoint_url = API_URL + "/exams/%s/show_lti_student" % exam_id
         api_token, secret_key = self.lti_provider_key_secret
         if not api_token:
-            return {"errors": "Le passport LTI n'est pas configuré"}
+            return {"errors": _("LTI passport is not configured")}
         headers = {
             "Content-Type": "application/json",
             "Authorization": "Token token=%s" % api_token,
@@ -134,8 +137,12 @@ class ProctorExamXBlock(ConfigurableLtiConsumerXBlock, StudioContainerXBlockMixi
         return fragment
 
     def _get_context_for_template(self):
+        """
+        Add needed values to template context
+        """
         context = super(ProctorExamXBlock, self)._get_context_for_template()
         context.update({
+            'user_is_staff': self.user_is_staff(),
             "banner": self.runtime.local_resource_url(self, 'public/images/banner.png'),
             "chrome_logo": self.runtime.local_resource_url(self, 'public/images/chrome-logo.png'),
             "warning_icon": self.runtime.local_resource_url(self, 'public/images/warning-icon.png'),
@@ -154,7 +161,7 @@ class ProctorExamXBlock(ConfigurableLtiConsumerXBlock, StudioContainerXBlockMixi
 
         if self._is_studio():  # studio view
             context["lms_link"] = get_lms_link_for_item(self.location) if get_lms_link_for_item else ""
-            fragment.add_content(self._render_template('static/html/studio.html', **context))
+            fragment.add_content(self._render_template('static/html/studio.html', context))
         else:  # Student view
             if self.launch_url and self._get_exam_id():
                 try:
@@ -167,20 +174,20 @@ class ProctorExamXBlock(ConfigurableLtiConsumerXBlock, StudioContainerXBlockMixi
                     )
                     context["user_state"] = user_state
                 except LtiError:
-                    message = u"La configuration de ce xblock est incomplète, le passport LTI est invalide."
+                    message = _("Proctor Exam xblock configuration is incomplete, LTI passport is invalid")
             else:
-                message = u"La configuration de ce xblock est incorrect, il manque l'url de l'examen."
+                message = _("Proctor Exam xblock configuration is incomplete, exam URL is missing")
 
             if user_state and "student" in user_state and (user_state["student"].get("status") == "exam_started"):
                 # User have completed Proctor Exam indentification process,
                 # we show him exam content
-                html = self._render_template('static/html/sequence.html', **context)
+                html = self._render_template('static/html/sequence.html', context)
                 fragment.add_content(html)
                 fragment.add_frags_resources(child_fragments)
             else:
                 # User have to complete Proctor Exam indentification process
                 context.update({'lti_parameters': lti_parameters, "message": message})
-                html = self._render_template("static/html/student.html", **context)
+                html = self._render_template("static/html/student.html", context)
                 fragment.add_content(html)
                 fragment.add_css(self.resource_string('static/css/student.css'))
 

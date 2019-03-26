@@ -4,18 +4,22 @@
 
     <p class="">
         {% if child_fragments %}
-            Cet examen Proctor Exam contient {{ child_fragments|length }} élément{{ child_fragments|pluralize }}.
+            {% blocktrans count elements=child_fragment|length %}
+                This Proctor Exam exam contains 1 element.
+            {% plural %}
+                This Proctor Exam exam contains {{ elements }} elements.
+            {% endblocktrans %}
             <br>
-            Cliquez sur "Voir" pour y acceder.
+            {% trans "Click on 'View' to edit" %}
         {% else %}
-            Cet examen Proctor Exam ne contient pas encore d'exercice.
+            {% trans "This Proctor Exam exam does not contain any element yet" %}
             <br>
-            Cliquez sur "Voir" pour en ajouter.
+            {% trans "Click on 'View' to add." %}
         {% endif %}
     </p>
 
-<p>
-    L'adresse de l'examen est <a href="{{ lms_link }}" target="_blank">https:{{ lms_link }}</a>
-</p>
+    <p>
+        {% trans "Exam url is" %} <a href="{{ lms_link }}" target="_blank">https:{{ lms_link }}</a>
+    </p>
 
 </article>
