@@ -1,6 +1,7 @@
 Proctor Exam Xblock
 =========================
 
+Xblock restricting access to course test to Proctor Exam monitoring process.
 
 [![CircleCI](https://circleci.com/gh/openfun/xblock-proctor-exam/tree/master.svg?style=svg)](https://circleci.com/gh/openfun/xblock-proctor-exam/tree/master)
 

@@ -57,7 +57,7 @@ jobs:
       - save_cache:
           paths:
             - ./dist
-          key: v1-distributions-{{ checksum "setup.cfg" }}
+          key: v1-distributions-{{ .Revision }}
 
   # Check that target git tag refers to a master branch commit and matches the
   # "version" from setup.cfg
@@ -86,17 +86,16 @@ jobs:
             # setup.cfg (X.Y.Z)
             grep "$(echo $CIRCLE_TAG | sed 's/^v/version = /')" setup.cfg
 
-  # Deploy build package to GemFury
-  deploy:
+  # Publishing to PyPI requires that:
+  #   * you already registered to pypi.org
+  #   * you have define both the TWINE_USERNAME & TWINE_PASSWORD secret
+  #     environment variables in CircleCI UI (with your PyPI credentials)
+  pypi:
 
     # Use GemFury CLI container (automated-build). Redefine entrypoint to none
     # to freely use curl or any other commands
     docker:
-      - image: appropriate/curl
-        entrypoint:
-
-    # Work in the same directory as the previous "build" job
-    working_directory: /home/circleci/project
+      - image: circleci/python:2.7-stretch
 
     steps:
       - checkout
@@ -104,26 +103,22 @@ jobs:
       # Restore built packages
       - restore_cache:
           keys:
-          - v1-distributions-{{ checksum "setup.cfg" }}
+            - v1-distributions-{{ .Revision }}
 
-      # Push distributions to GemFury service
-      #
-      # Nota bene: you'll need to define the following secrets environment vars
-      # in CircleCI interface:
-      #
-      #   - GEMFURY_USER
-      #   - GEMFURY_API_TOKEN
+      # Restore python virtualenv
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "setup.cfg" }}
+
       - run:
-          name: Publish distributions to GemFury
+          name: Publish distributions to PyPI
           command: |
             echo ":::: Distributions found ::::"
             ls dist/*
 
             echo ":::: Publish distributions ::::"
-            for dist in $(ls dist/*) ; do \
-              echo "Deploy distribution: $dist" ; \
-              curl -F package=@$dist https://${GEMFURY_API_TOKEN}@push.fury.io/${GEMFURY_USER}/ ; \
-            done
+            . venv/bin/activate
+            twine upload dist/*
 
 
 # CI workflows
@@ -153,9 +148,9 @@ workflows:
             branches:
               ignore: /.*/
 
-      # Deploy build packages only if the build job succeeds and it has been
+      # Publish build packages only if the build job succeeds and it has been
       # tagged with a tag starting with the letter v
-      - deploy:
+      - pypi:
           requires:
             - validate
           filters:
