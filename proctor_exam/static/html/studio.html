@@ -4,22 +4,22 @@
 
     <p class="">
         {% if child_fragments %}
-            {% blocktrans count elements=child_fragment|length %}
+            {% blocktrans count elements=child_fragments|length %}
                 This Proctor Exam exam contains 1 element.
             {% plural %}
                 This Proctor Exam exam contains {{ elements }} elements.
             {% endblocktrans %}
             <br>
-            {% trans "Click on 'View' to edit" %}
+            {% trans "Click on 'View' to edit." %}
         {% else %}
-            {% trans "This Proctor Exam exam does not contain any element yet" %}
+            {% trans "This Proctor Exam exam does not contain any element yet." %}
             <br>
             {% trans "Click on 'View' to add." %}
         {% endif %}
     </p>
 
     <p>
-        {% trans "Exam url is" %} <a href="{{ lms_link }}" target="_blank">https:{{ lms_link }}</a>
+        {% trans "Exam url is: " %} <a href="{{ lms_link }}" target="_blank">https:{{ lms_link }}</a>
     </p>
 
 </article>
