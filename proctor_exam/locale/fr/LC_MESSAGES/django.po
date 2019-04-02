@@ -1,39 +1,64 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: xblock-proctor-exam\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-26 14:36+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2019-04-02 18:00+0100\n"
+"PO-Revision-Date: 2019-04-02 18:00\n"
+"Last-Translator: Richard Moch <richard.moch@fun-mooc.fr>\n"
+"Language-Team: French\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: proctor_exam.py:41
 msgid "Display Name"
-msgstr ""
+msgstr "Display Name"
 
 #: proctor_exam.py:47
 msgid "LTI ID"
-msgstr ""
+msgstr "LTI ID"
 
 #: proctor_exam.py:102
 msgid "LTI passport is not configured"
-msgstr ""
+msgstr "Le passport LTI n'est pas configuré"
 
 #: proctor_exam.py:177
 msgid ""
 "Proctor Exam xblock configuration is incomplete, LTI passport is invalid"
-msgstr ""
+msgstr "La configuration de ce xblock Proctor Exam est imcomplète, le passport LTI est invalide"
 
 #: proctor_exam.py:179
 msgid "Proctor Exam xblock configuration is incomplete, exam URL is missing"
-msgstr ""
+msgstr "La configuration de ce xblock Proctor Exam est imcomplète, l'URL de l'examen est manquante"
+
+msgid "Click here to start identification process on Proctor Exam website"
+msgstr "Cliquez sur ce bouton pour commencer votre examen en ligne surveillé"
+
+msgid "Click here to continue identification process on Proctor Exam website"
+msgstr "Cliquez sur ce bouton pour continuer la phase de vérification de votre examen"
+
+msgid "Exam is running"
+msgstr "Cliquez sur ce bouton pour continuer votre examen en ligne surveillé"
+
+msgid "Exam is finished"
+msgstr "Votre examen est terminé"
+
+msgid "This Proctor Exam exam contains 1 element."
+msgstr "Cet examen Proctor Exam contient 1 élément"
+
+msgid "This Proctor Exam exam contains {{ elements }} elements."
+msgstr "Cet examen Proctor Exam contient {{ elements }} éléments"
+
+msgid "Click on 'View' to edit"
+msgstr "Cliquez sur 'Voir' pour editer"
+
+msgid "This Proctor Exam exam does not contain any element yet."
+msgstr "Cet examen Proctor Exam ne contient aucun élément"
+
+msgid "Click on 'View' to add."
+msgstr "Cliquez sur 'Voir' pour en ajouter"
+
+msgid "Exam url is: "
+msgstr "L'adresse de l'examen est :"
