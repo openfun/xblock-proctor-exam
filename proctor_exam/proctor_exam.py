@@ -155,10 +155,9 @@ class ProctorExamXBlock(ConfigurableLtiConsumerXBlock, StudioContainerXBlockMixi
         message = ""
         lti_parameters = {}
         fragment = Fragment()
-        context = self._get_context_for_template()
-        child_fragments = self.runtime.render_children(block=self, view_name='student_view')
+        context.update(self._get_context_for_template())
+        child_fragments = self.runtime.render_children(block=self, view_name='student_view', context=context)
         context.update({"child_fragments": child_fragments})
-
         if self._is_studio():  # studio view
             context["lms_link"] = get_lms_link_for_item(self.location) if get_lms_link_for_item else ""
             fragment.add_content(self._render_template('static/html/studio.html', context))
