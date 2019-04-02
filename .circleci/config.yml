@@ -14,12 +14,12 @@ jobs:
       - checkout
 
       # Restore dependencies cache only if nothing has changed in the
-      # `setup.cfg` file. There is no fall-back to older virtual environments to
+      # `setup.py` file. There is no fall-back to older virtual environments to
       # ensure a clean environment if some dependencies may have been upgraded
       # or removed.
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "setup.cfg" }}
+          - v1-dependencies-{{ checksum "setup.py" }}
 
       # Install package dependencies in a virtual environment
       - run:
@@ -33,7 +33,7 @@ jobs:
       - save_cache:
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "setup.cfg" }}
+          key: v1-dependencies-{{ checksum "setup.py" }}
 
       # Build the package (source + wheel binary)
       - run:
@@ -48,7 +48,7 @@ jobs:
             ls dist/*
 
             echo ":::: Wheel distribution ::::"
-            unzip -l dist/*-py2.py3-none-any.whl
+            unzip -l dist/*-py2-none-any.whl
 
             echo ":::: Source distribution ::::"
             tar tvzf dist/*.tar.gz
@@ -60,14 +60,14 @@ jobs:
           key: v1-distributions-{{ .Revision }}
 
   # Check that target git tag refers to a master branch commit and matches the
-  # "version" from setup.cfg
+  # "version" from setup.py
   validate:
 
     docker:
       - image: circleci/python:2.7-stretch
         environment:
           # This is the branch that is supposed to contain target commit/tag
-          TARGET_BRANCH: master
+          TARGET_BRANCH: dogwood
 
     steps:
       - checkout
@@ -83,8 +83,8 @@ jobs:
             git branch -a --contains ${tag_commit} | grep remotes/origin/${TARGET_BRANCH}
 
             # Check that the current tag (vX.Y.Z) matches the release number in
-            # setup.cfg (X.Y.Z)
-            grep "$(echo $CIRCLE_TAG | sed 's/^v/version = /')" setup.cfg
+            # setup.py (X.Y.Z)
+            grep "$(echo $CIRCLE_TAG | sed 's/^v/version="/')" setup.py
 
   # Publishing to PyPI requires that:
   #   * you already registered to pypi.org
@@ -108,7 +108,7 @@ jobs:
       # Restore python virtualenv
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "setup.cfg" }}
+            - v1-dependencies-{{ checksum "setup.py" }}
 
       - run:
           name: Publish distributions to PyPI
