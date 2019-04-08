@@ -13,28 +13,6 @@ jobs:
     steps:
       - checkout
 
-      # Restore dependencies cache only if nothing has changed in the
-      # `setup.py` file. There is no fall-back to older virtual environments to
-      # ensure a clean environment if some dependencies may have been upgraded
-      # or removed.
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "setup.py" }}
-
-      # Install package dependencies in a virtual environment
-      - run:
-          name: Install dependencies
-          command: |
-            virtualenv venv
-            . venv/bin/activate
-            pip install -e .[dev]
-
-      # Cache virtual environment
-      - save_cache:
-          paths:
-            - ./venv
-          key: v1-dependencies-{{ checksum "setup.py" }}
-
       # Build the package (source + wheel binary)
       - run:
           name: Build application package
@@ -59,7 +37,7 @@ jobs:
             - ./dist
           key: v1-distributions-{{ .Revision }}
 
-  # Check that target git tag refers to a master branch commit and matches the
+  # Check that target git tag refers to a dogwood branch commit and matches the
   # "version" from setup.py
   validate:
 
@@ -73,29 +51,30 @@ jobs:
       - checkout
 
       - run:
-          name: Check target tag points to a master branch commit
+          name: Check target tag points to a dogwood branch commit
           command: |
             # Get current tag corresponding commit ID
             tag_commit=$(git rev-list -n 1 $CIRCLE_TAG)
 
             # Check that the tag refer to a commit in the $TARGET_BRANCH (e.g.
-            # the master branch)
+            # the dogwood branch)
             git branch -a --contains ${tag_commit} | grep remotes/origin/${TARGET_BRANCH}
 
             # Check that the current tag (vX.Y.Z) matches the release number in
             # setup.py (X.Y.Z)
             grep "$(echo $CIRCLE_TAG | sed 's/^v/version="/')" setup.py
 
-  # Publishing to PyPI requires that:
-  #   * you already registered to pypi.org
-  #   * you have define both the TWINE_USERNAME & TWINE_PASSWORD secret
-  #     environment variables in CircleCI UI (with your PyPI credentials)
-  pypi:
+  # Publishing to Gemfury requires that you define the following secrets
+  # environment vars in CircleCI interface:
+  #   - GEMFURY_USER
+  #   - GEMFURY_API_TOKEN
+  gemfury:
 
-    # Use GemFury CLI container (automated-build). Redefine entrypoint to none
-    # to freely use curl or any other commands
     docker:
-      - image: circleci/python:2.7-stretch
+      - image: appropriate/curl
+
+    # Work in the same directory as the previous "build" job
+    working_directory: /home/circleci/project
 
     steps:
       - checkout
@@ -105,20 +84,17 @@ jobs:
           keys:
             - v1-distributions-{{ .Revision }}
 
-      # Restore python virtualenv
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "setup.py" }}
-
       - run:
-          name: Publish distributions to PyPI
+          name: Publish distributions to Gemfury
           command: |
             echo ":::: Distributions found ::::"
             ls dist/*
 
             echo ":::: Publish distributions ::::"
-            . venv/bin/activate
-            twine upload dist/*
+            for dist in $(ls dist/*) ; do \
+              echo "Deploy distribution: $dist" ; \
+              curl -F package=@$dist https://${GEMFURY_API_TOKEN}@push.fury.io/${GEMFURY_USER}/ ; \
+            done
 
 
 # CI workflows
@@ -138,7 +114,7 @@ workflows:
             tags:
               only: /.*/
 
-      # Validate git tag (should refer to a master branch commit)
+      # Validate git tag (should refer to a dogwood branch commit)
       - validate:
           requires:
             - build
@@ -150,7 +126,7 @@ workflows:
 
       # Publish build packages only if the build job succeeds and it has been
       # tagged with a tag starting with the letter v
-      - pypi:
+      - gemfury:
           requires:
             - validate
           filters:
