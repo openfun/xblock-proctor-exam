@@ -1,16 +1,27 @@
 .proctor-exam .frame {
     width: 95%;
-    margin: left;
     display: block;
-    padding: 5px 10px 10px 12px;
-    min-height: 90px;
-    background-color: #ffffff;
+    padding: 16px 16px 4px 16px;
     border-left: 10px solid #4479b3;
     border-top: 1px solid #4479b3;
     margin-bottom: 30px;
     border-radius: 20px;
     box-shadow: 5px 5px 7px #4479b3;
 }
+
+.proctor-exam .cnil {
+    width: 90%;
+    display: block;
+    margin-left: 20px;
+    margin-right: 20px;
+    padding: 16px 16px 4px 16px;
+    border-left: 10px solid #0EA665;
+    border-top: 1px solid #0EA665;
+    margin-bottom: 30px;
+    border-radius: 20px;
+    box-shadow: 5px 5px 7px #0EA665;
+}
+
 
 .proctor-exam ul {
     padding-left: 60px !important;
