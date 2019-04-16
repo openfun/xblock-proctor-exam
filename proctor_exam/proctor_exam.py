@@ -16,6 +16,7 @@ except ImportError:
     # we are on the LMS side, contentstore module is not in PYTHONPATH
     get_lms_link_for_item = None
 
+from student.models import CourseEnrollment
 from xblock.fields import String, Scope
 from xblock.fragment import Fragment
 from xblock.core import XBlock
@@ -136,6 +137,14 @@ class ProctorExamXBlock(ConfigurableLtiConsumerXBlock, StudioContainerXBlockMixi
         self.render_children(context, fragment, can_reorder=True, can_add=True)
         return fragment
 
+    def _allowed_verified(self):
+        """
+        Returns True if user registered the course in 'verified' mode.
+        """
+        course_enrollment = CourseEnrollment.objects.get(
+            course_id=self.location.course_key, user=self.runtime.user_id)
+        return course_enrollment.mode == 'verified'
+
     def _get_context_for_template(self):
         """
         Add needed values to template context
@@ -184,9 +193,12 @@ class ProctorExamXBlock(ConfigurableLtiConsumerXBlock, StudioContainerXBlockMixi
                 fragment.add_content(html)
                 fragment.add_frags_resources(child_fragments)
             else:
-                # User have to complete Proctor Exam indentification process
-                context.update({'lti_parameters': lti_parameters, "message": message})
-                html = self._render_template("static/html/student.html", context)
+                if self._allowed_verified():
+                    # User have to complete Proctor Exam indentification process
+                    context.update({'lti_parameters': lti_parameters, "message": message})
+                    html = self._render_template("static/html/student.html", context)
+                else:
+                    html = self._render_template("static/html/honor.html", context)
                 fragment.add_content(html)
                 fragment.add_css(self.resource_string('static/css/student.css'))
 
