@@ -31,7 +31,7 @@ setup(name="xblock-proctor-exam",
       ],
     install_requires=[
         "xblock-utils",
-        "xblock-configurable-lti-consumer==1.2.3+dogwood"
+        "xblock-configurable-lti-consumer==1.2.4+dogwood"
     ],
     extras_require={
         "dev": [
