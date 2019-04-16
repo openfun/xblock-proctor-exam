@@ -8,6 +8,8 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v0.9.0-beta] - 2019-04-16
+
 ### Added
 
 - This changelog
