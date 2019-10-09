@@ -8,6 +8,8 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v0.9.0-beta] - 2019-10-09
+
 ### Added
 
 - This changelog
@@ -31,7 +33,6 @@ Versioning](http://semver.org/spec/v2.0.0.html).
 
 - First working implementation
 - Docker development environment
-
 
 [unreleased]: https://github.com/openfun/xblock-proctor-exam/compare/v0.9.0-beta+dogwood...dogwood
 [v0.9.0-beta]: https://github.com/openfun/xblock-proctor-exam/compare/v0.8.2-beta+dogwood...v0.9.0-beta+dogwood
