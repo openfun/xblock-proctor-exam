@@ -19,7 +19,7 @@ def package_data(pkg, roots):
 
 
 setup(name="xblock-proctor-exam",
-      version="0.9.0-beta+dogwood",
+      version="0.9.0-beta+eucalyptus",
       description="Xblock restricting access to course test to Proctor Exam monitoring process",
       author="Open FUN (France Universite Numérique)",
       author_email="fun.dev@fun-mooc.fr",
@@ -31,7 +31,7 @@ setup(name="xblock-proctor-exam",
       ],
     install_requires=[
         "xblock-utils",
-        "xblock-configurable-lti-consumer==1.2.4+dogwood"
+        "xblock-configurable-lti-consumer==1.2.4+eucalyptus"
     ],
     extras_require={
         "dev": [
